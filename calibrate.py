@@ -53,8 +53,6 @@ class Calibrate:
         obj_pts = []
         # 2d points in image plane.
         img_pts = []
-        # save the name of the image with bad chess bord detection
-        img_bad = None
         # number of imges
         print('Provided images: ', len(images))
         if len(images) < 9:
@@ -79,15 +77,12 @@ class Calibrate:
                 if show_img:
                     img = cv2.drawChessboardCorners(img, grid, corners2, ret)
                     cv2.imshow('img', img)
-                    cv2.waitKey(500)
-                if img_bad is None:
-                    img_bad = image
+                    cv2.waitKey(500)            
             else:
-                img_bad = image
+                pass
+    
         cv2.destroyAllWindows()
 
-        # read image
-        img = cv2.imread(img_bad)
         print('Useful images: ', len(obj_pts))
         print('Image dimensions: ', img.shape)
 
