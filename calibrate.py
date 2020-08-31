@@ -3,13 +3,11 @@ import cv2
 import sys
 import glob
 import numpy as np
-import undisort_images as ui
 from camera import Camera
 
 
 class Calibrate:
     def __init__(self, save: bool = False, path: str = '', file_name: str = '') -> None:
-
         self._save = save
         self._file_name = file_name
         self._path = path
@@ -37,7 +35,7 @@ class Calibrate:
         # Resize the image
         img = cv2.resize(img, (h, w))
 
-    def calibrate(self, num_rows: int = 9, num_cols: int = 6, dimension: int = 30, extension: str = 'jpg', show_img: bool = False) -> None:
+    def calibrate(self, fish_eye=False, num_rows: int = 9, num_cols: int = 6, dimension: int = 30, extension: str = 'jpg', show_img: bool = False) -> None:
         path = ''.join([self._dir_path, '/*.', extension])
         images = glob.glob(path)
         # chessboard grid
@@ -92,88 +90,59 @@ class Calibrate:
         img = cv2.imread(img_bad)
         print('Useful images: ', len(obj_pts))
         print('Image dimensions: ', img.shape)
-        # undisort images usin finctions from undisort images
-        mtx, dist, undistoted_img = self.undisort(
-            obj_pts, img_pts, img)
+
+        if not fish_eye:
+            if len(obj_pts) > 1:
+                h, w, _ = img.shape
+                ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(obj_pts, img_pts, (w, h), None, None)
+                new_mtx, roi = cv2.getOptimalNewCameraMatrix(mtx, dist, (w, h), 1, (w, h))
+
+                print('Calibration Matrix: ')
+                print(mtx)
+                print('New Camera Martrix:')
+                print(new_mtx)
+                print('Disortion: ')
+                print(dist)
+
+                # Distortion Error
+                mean_error = 0
+                for i in range(len(obj_pts)):
+                    img_pts2, _ = cv2.projectPoints(obj_pts[i], rvecs[i], tvecs[i], mtx, dist)
+                    error = cv2.norm(img_pts[i], img_pts2, cv2.NORM_L2) / len(img_pts2)
+                    mean_error += error
+
+                print('Total error: ', mean_error / len(obj_pts))
+            else:
+                print('Not enough images')
+                mtx, dist, rvecs, tvecs, undisorted_img = 0, 0, 0, 0, 0
+        
+        elif fish_eye:
+           print('Not enabeled yet')
+           sys.exit()
         # save resuts in a .txt file
         camera_matrix = ''.join([self._dir_path, '/', 'camera_matrix', '.txt'])
         np.savetxt(camera_matrix, mtx, delimiter=',')
-        camera_distortion = ''.join(
-            [self._dir_path, '/', 'camera_distortion', '.txt'])
+        new_camera_matrix = ''.join([self._dir_path, '/', 'new_camera_matrix', '.txt'])
+        np.savetxt(new_camera_matrix, new_mtx, delimiter=',')
+        camera_distortion = ''.join([self._dir_path, '/', 'camera_distortion', '.txt'])
         np.savetxt(camera_distortion, np.transpose(dist), delimiter=',')
 
-        cv2.imshow('Undisorted Image', undistoted_img)
+
+    def undisort(self, img:np.array, mtx, new_mtx, dist, roi) -> np.array:
+        undisorted_img = cv2.undistort(img, mtx, dist, None, new_mtx)
+        # Crop image
+        if roi[0]:
+            x, y, w, h = roi
+            undisorted_img = undisorted_img[y:y + h, x:x + w]
+        
+        cv2.imshow('Undisorted Image', undisorted_img)
         while not self.check_Q:
             pass
         cv2.destroyAllWindows()
-
-    def undisort(self, obj_pts, img_pts, img):
-        if len(obj_pts) > 1:
-            h, w, _ = img.shape
-            # Undistort an image
-            ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(
-                obj_pts, img_pts, (w, h), None, None)
-            #cv2.imshow('Disorted Image', img)
-            # cv2.waitKey(500)
-
-            new_mtx, roi = cv2.getOptimalNewCameraMatrix(
-                mtx, dist, (w, h), 1, (w, h))
-            undisorted_img = cv2.undistort(img, mtx, dist, None, new_mtx)
-            # Crop image
-            if roi[0]:
-                x, y, w, h = roi
-                undisorted_img = undisorted_img[y:y + h, x:x + w]
-
-            print('ROI: ', roi)
-            print('Calibration Matrix: ')
-            print(mtx)
-            print('New Camera Martrix:')
-            print(new_mtx)
-            print('Disortion: ')
-            print(dist)
-
-            # Distortion Error
-            mean_error = 0
-            for i in range(len(obj_pts)):
-                img_pts2, _ = cv2.projectPoints(
-                    obj_pts[i], rvecs[i], tvecs[i], mtx, dist)
-                error = cv2.norm(img_pts[i], img_pts2,
-                                cv2.NORM_L2) / len(img_pts2)
-                mean_error += error
-
-            print('Total error: ', mean_error / len(obj_pts))
-        else:
-            print('Not enough images')
-            mtx, dist, rvecs, tvecs, undisorted_img = 0, 0, 0, 0, 0
-
-        return mtx, dist, undisorted_img
+        return undisorted_img
 
 
-    def undisort_fish_eye_v1(self, obj_pts, img_pts, img):
-        calibration_flags = cv2.fisheye.CALIB_RECOMPUTE_EXTRINSIC + cv2.fisheye.CALIB_CHECK_COND + cv2.fisheye.CALIB_FIX_SKEW
-        criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 1e-6)
-
-        nb_img = len(obj_pts)
-        h, w = img.shape[:2]
-        mtx = np.zeros((3, 3))
-        dist = np.zeros((4, 1))
-        rvecs = [np.zeros((1, 1, 3), dtype=np.float64) for i in range(nb_img)]
-        tvecs = [np.zeros((1, 1, 3), dtype=np.float64) for i in range(nb_img)]
-        rms, _, _, _, _ = cv2.fisheye.calibrate(obj_pts, img_pts, (w, h), mtx, dist, rvecs, tvecs, calibration_flags, criteria)
-
-        map1, map2 = cv2.fisheye.initUndistortRectifyMap(mtx, dist, np.eye(3), mtx, (w, h), cv2.CV_16SC2)
-        undistorted_img = cv2.remap(img, map1, map2, interpolation=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT)
-
-        print('Calibration Matrix: ')
-        print(mtx)
-        print('Disortion: ')
-        print(np.transpose(dist))
-
-        return mtx, dist, undistorted_img
-
-
-
-    def undisort_fish_eye_v2(self, obj_pts, img_pts, img):
+    def undisort_fish_eye(self, obj_pts, img_pts, img):
         calibration_flags = cv2.fisheye.CALIB_RECOMPUTE_EXTRINSIC + cv2.fisheye.CALIB_CHECK_COND + cv2.fisheye.CALIB_FIX_SKEW
         criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 1e-6)
 
