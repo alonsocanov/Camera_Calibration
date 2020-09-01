@@ -7,7 +7,7 @@ import numpy as np
 
 class Camera:
     def __init__(self, save: bool=False, save_path: str='', file_name: str='') -> None:
-        
+
         self._save = save
         self._file_name = file_name
         self._save_path = save_path
@@ -44,7 +44,6 @@ class Camera:
             fourcc = cv2.VideoWriter_fourcc(*'MJPG')
             save_path = ''.join([self._file_path, '.avi'])
             out = cv2.VideoWriter(save_path, fourcc, fps, (width, height))
-        
         while True:
             try:
                 # capture each frame
@@ -58,7 +57,6 @@ class Camera:
                         break
                 else:
                     break
-    
             except KeyboardInterrupt:
                 print('Interrupted')
                 break
@@ -69,10 +67,10 @@ class Camera:
         # Destroy all windows
         cv2.destroyAllWindows()
 
-    def captureImage(self, num_img: int=1, fps: int=1) -> None:
+    def captureImage(self, num_img: int = 1, fps: int = 1) -> None:
         webcam = cv2.VideoCapture(0)
         # number of photos to take
-        key = cv2.waitKey(3000)
+        cv2.waitKey(3000)
         for i in range(num_img):
             try:
                 ret, frame = webcam.read()
@@ -81,7 +79,7 @@ class Camera:
                     path = ''.join([self._file_path, '_', str(i), '.jpg'])
                     cv2.imwrite(filename=path, img=frame)
                 # see image for 2 seconds
-                key = cv2.waitKey(int(fps * 1000))
+                cv2.waitKey(int(fps * 1000))
                 if self.check_Q:
                     break
             except KeyboardInterrupt:
@@ -89,7 +87,3 @@ class Camera:
                 break
         webcam.release()
         cv2.destroyAllWindows()
-    
-    
-
-    

@@ -14,3 +14,15 @@ This repository uses the following libraries:
 
 
 ## Files
+- camera.py
+- calibrate.py
+- test_camera.py
+- chess_board.jpg
+## Folders
+- logi_720
+Images taken with logi webcam for calibraton
+- pi_fish_eye
+Raspberry PI images taken with a fish eye camera
+- rasp_pi
+Raspberry PI images
+
