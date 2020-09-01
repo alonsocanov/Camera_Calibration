@@ -14,10 +14,14 @@ This repository uses the following libraries:
 
 
 ## Files
-- camera.py
-- calibrate.py
-- test_camera.py
-- chess_board.jpg
+- camera.py  
+Class made to take videos or photos
+- calibrate.py  
+Class to obtain camera disortion and undisort images
+- test_camera.py  
+Tests created to verify created classes
+- chess_board.jpg  
+Chess board image for disortion
 ## Folders
 - logi_720  
 Images taken with logi webcam for calibraton
