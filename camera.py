@@ -3,34 +3,23 @@ import cv2
 import sys
 import glob
 import numpy as np
+import time
 
 
 class Camera:
-    def __init__(self, save: bool=False, save_path: str='', file_name: str='') -> None:
+    def __init__(self, pipeline=0, api=None) -> None:
 
-        self._save = save
-        self._file_name = file_name
-        self._save_path = save_path
-        self._cur_dir = os.path.abspath(os.path.dirname(__file__))
-        if save_path:
-            path = [self._cur_dir, self._save_path, self._file_name]
-            self._file_path = '/'.join(path)
-            path = [self._cur_dir, self._save_path]
-            self._dir_path = '/'.join(path)
-        else:
-            path = [self._cur_dir, self._file_name]
-            self._file_path = '/'.join(path)
-            path = [self._cur_dir]
-            self._dir_path = '/'.join(path)
+        self.pipeline = pipeline
+        self.api = api
 
     def check_webcam_avalability(self, webcam: cv2.VideoCapture) -> None:
         if not webcam.isOpened():
             print("Error opening webcam")
-            sys.exit()
+            webcam.release()
+            sys.exit(1)
 
-    @property
-    def check_Q(self) -> bool:
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+    def check(self, char: str = 'q') -> bool:
+        if cv2.waitKey(1) & 0xFF == ord(char):
             return True
         return False
 
@@ -53,7 +42,7 @@ class Camera:
                     cv2.imshow('Frame', frame)
                     if self._save:
                         out.write(frame)
-                    if self.check_Q:
+                    if self.check:
                         break
                 else:
                     break
@@ -67,20 +56,28 @@ class Camera:
         # Destroy all windows
         cv2.destroyAllWindows()
 
-    def captureImage(self, num_img: int = 1, fps: int = 1) -> None:
-        webcam = cv2.VideoCapture(0)
-        # number of photos to take
-        cv2.waitKey(3000)
+    def captureImage(self, num_img: int = 1, fps: int = 1, save_dir='', img_name='img', file_type='.jpg', show_img=False) -> None:
+        if not self.api:
+            webcam = cv2.VideoCapture(self.pipeline)
+        else:
+            webcam = cv2.VideoCapture(self.pipeline, self.api)
+        self.check_webcam_avalability(webcam)
+        if show_img:
+            time.sleep(fps)
         for i in range(num_img):
             try:
                 ret, frame = webcam.read()
-                cv2.imshow("Captured Image", frame)
-                if self._save:
-                    path = ''.join([self._file_path, '_', str(i), '.jpg'])
+                if not ret:
+                    print('Unable to get image')
+                    sys.exit(1)
+                if save_dir:
+                    image_name = ''.join([img_name, '_', str(i), file_type])
+                    path = '/'.join([save_dir, image_name])
                     cv2.imwrite(filename=path, img=frame)
-                # see image for 2 seconds
-                cv2.waitKey(int(fps * 1000))
-                if self.check_Q:
+                if show_img:
+                    cv2.imshow("Captured Image", frame)
+                    cv2.waitKey(int(fps * 1000))
+                if self.check:
                     break
             except KeyboardInterrupt:
                 print("Interrupted")
