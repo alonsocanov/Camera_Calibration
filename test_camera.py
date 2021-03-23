@@ -7,11 +7,11 @@ import cv2
 
 class TestCameraCalibration(unittest.TestCase):
 
-    def testVideoCapture(self):
-        print('\nTesting video capture')
-        camera = Camera(pipeline=1)
-        fps = 24
-        camera.captureVideo(fps=fps, save_dir='webcam', show_frame=True)
+    # def testVideoCapture(self):
+    #     print('\nTesting video capture')
+    #     camera = Camera(pipeline=1)
+    #     fps = 24
+    #     camera.captureVideo(fps=fps, save_dir='webcam', show_frame=True)
 
     # def testPhotoCapture(self):
     #     print('\nTesting capturing photos')
@@ -25,37 +25,40 @@ class TestCameraCalibration(unittest.TestCase):
 
     # def testCalibration(self):
     #     print('\nTesting camera calibration')
-    #     photos_path = 'rasp_pi'
-    #     camera = Calibrate(save=False, path=photos_path, file_name='')
-    #     camera.calibrate(fish_eye=False)
+    #     photos_path = 'logi_720_v2'
+    #     logi_720 = Calibrate(img_dir=photos_path)
+    #     mtx, new_mtx, dist, roi = logi_720.calibrate()
+    #     logi_720.save('camera_matrix.txt', mtx)
+    #     logi_720.save('new_camera_matrix.txt', new_mtx)
+    #     logi_720.save('camera_distortion.txt', dist)
+    #     logi_720.save('region_of_interest.txt', roi)
 
     # def testFishEyeCalibration(self):
     #     print('\nTesting camera calibration for fish eye')
     #     fish_path = 'pi_fish_eye'
-    #     camera = Calibrate(save=False, path=fish_path, file_name='')
-    #     camera.calibrate(fish_eye=True)
+    #     fish = Calibrate(img_dir=fish_path)
+    #     mtx, new_mtx, dist, roi = fish.calibrate_fish_eye()
+    #     fish.save('camera_matrix.txt', mtx)
+    #     fish.save('new_camera_matrix.txt', new_mtx)
+    #     fish.save('camera_distortion.txt', dist)
+    #     fish.save('region_of_interest.txt', roi)
 
     # def testUndisort(self):
     #     photos_path = 'rasp_pi'
-    #     camera = Calibrate(save=False, path=photos_path, file_name='')
-    #     img_path = '/'.join([camera.directoy_path, 'img_1.jpg'])
+    #     logi_720 = Calibrate(img_dir=photos_path)
+    #     mtx, new_mtx, dist, roi = logi_720.calibrate()
+    #     img_path = '/'.join([logi_720.directoy, 'img_1.jpg'])
     #     img = cv2.imread(img_path)
-    #     mtx = camera.mtx
-    #     new_mtx = camera.new_mtx
-    #     dist = camera.dist
-    #     roi = camera.roi
-    #     img = camera.undisort(img, mtx, new_mtx, dist, roi, fish_eye=False)
+    #     img_undisort = logi_720.undisort(img, mtx, new_mtx, dist, roi)
 
     # def testFishEyeUndisort(self):
     #     fish_path = 'pi_fish_eye'
-    #     camera = Calibrate(save=False, path=fish_path, file_name='')
-    #     img_path = '/'.join([camera.directoy_path, 'img_1.jpg'])
-    #     mtx = camera.mtx
-    #     new_mtx = camera.new_mtx
-    #     dist = camera.dist
-    #     roi = camera.roi
+    #     fish = Calibrate(img_dir=fish_path)
+    #     mtx, new_mtx, dist, roi = fish.calibrate_fish_eye()
+    #     img_path = '/'.join([fish.directoy, 'img_1.jpg'])
     #     img = cv2.imread(img_path)
-    #     img = camera.undisort(img, mtx, new_mtx, dist, roi, fish_eye=True)
+    #     img_undisort = fish.undisort_fish_eye(
+    #         img, mtx, new_mtx, dist, roi)
 
 
 if __name__ == '__main__':
