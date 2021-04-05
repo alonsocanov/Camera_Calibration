@@ -56,15 +56,15 @@ class TestCameraCalibration(unittest.TestCase):
     #     cam_roi = utils.join_path(fish_path, 'region_of_interest.txt')
     #     calibrate.save(cam_roi, roi)
 
-    # def testUndisort(self):
-    #     photos_path = 'logi_720_v2'
-    #     dir_path = utils.get_file_dir()
-    #     photos_path = utils.join_path(dir_path, photos_path)
-    #     files = utils.files_in_dir(photos_path, '.jpg')
-    #     mtx, new_mtx, dist, roi = calibrate.calibrate(files)
-    #     img_path = utils.join_path(photos_path, 'img_1.jpg')
-    #     img = cv2.imread(img_path)
-    #     img_undisort = calibrate.undisort(img, mtx, new_mtx, dist, roi)
+    def testUndisort(self):
+        photos_path = 'logi_720'
+        dir_path = utils.get_file_dir()
+        photos_path = utils.join_path(dir_path, photos_path)
+        files = utils.files_in_dir(photos_path, '.jpg')
+        mtx, new_mtx, dist, roi = calibrate.calibrate(files)
+        img_path = utils.join_path(photos_path, 'img_1.jpg')
+        img = cv2.imread(img_path)
+        img_undisort = calibrate.undisort(img, mtx, new_mtx, dist, roi)
 
     # def testFishEyeUndisort(self):
     #     fish_path = 'pi_fish_eye_v2'

@@ -3,18 +3,6 @@ import cv2
 import sys
 import glob
 import numpy as np
-import camera
-
-# self._mtx_file = 'camera_matrix.txt'
-# self._new_mtx_file = 'new_camera_matrix.txt'
-# self._dist_file = 'camera_distortion.txt'
-# self._roi_file = 'region_of_interest.txt'
-
-
-def check(char: str = 'q') -> bool:
-    if cv2.waitKey(1) & 0xFF == ord(char):
-        return True
-    return False
 
 
 def load_data(path):
@@ -100,7 +88,7 @@ def calibrate(imgs, num_rows: int = 9, num_cols: int = 6, dimension: int = 30, s
     print('Useful images: ', len(obj_pts))
     print('Image dimensions: ', img.shape)
 
-    h, w, _ = img.shape
+    h, w = img.shape[:2]
     num_obj_pts = len(obj_pts)
 
     if num_obj_pts > 1:
@@ -211,7 +199,7 @@ def calibrate_fish_eye(imgs, num_rows: int = 9, num_cols: int = 6, dimension: in
 
 
 def undisort(img: np.array, mtx: np.array, new_mtx: np.array, dist: np.array, roi: np.array = None) -> np.array:
-    h, w, _ = img.shape
+    h, w = img.shape[:2]
 
     undisorted_img = cv2.undistort(img, mtx, dist, None, new_mtx)
     # Crop image (region of interesest)
@@ -223,7 +211,7 @@ def undisort(img: np.array, mtx: np.array, new_mtx: np.array, dist: np.array, ro
 
 
 def undisort_fish_eye(img: np.array, mtx: np.array, new_mtx: np.array, dist: np.array, roi: np.array = None) -> np.array:
-    h, w, _ = img.shape
+    h, w = img.shape[:2]
 
     balance = 1
     dim1 = img.shape[:2][::-1]
