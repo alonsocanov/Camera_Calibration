@@ -5,6 +5,19 @@ import glob
 import numpy as np
 import time
 from utils import sys_exit
+import time
+
+
+def checkDevice(source, api=None):
+    if not api:
+        cap = cv2.VideoCapture(source)
+    else:
+        cap = cv2.VideoCapture(source, api)
+    if cap is None or not cap.isOpened():
+        cap.release()
+        message = 'Could not open video feed'
+        sys_exit(message)
+    return cap
 
 
 def check_webcam_avalability(webcam: cv2.VideoCapture) -> None:
@@ -19,7 +32,7 @@ def check_key(char: str = 'q') -> bool:
     return False
 
 
-def scale(dim: tuple, scale: float):
+def scale(dim: tuple, scale: float = 1):
     if not isinstance(dim, tuple) or len(dim) != 2:
         message = ' '.join(['Dimension must be a tuple and of lenght 2:', dim])
         sys_exit(message)
@@ -33,26 +46,29 @@ def resize(img: np.ndarray, dim: tuple):
     return cv2.resize(img, dim)
 
 
-def save_video(file_path, fps=24, dim):
+def save_video(file_path, dim, fps=24):
     fourcc = cv2.VideoWriter_fourcc(*'MJPG')
     out = cv2.VideoWriter(file_path, fourcc, fps, (dim[0], dim[1]))
     return out
 
 
-def captureVideo(fps=24, save_dir: str = '', video_name: str = 'video', show_frame: bool = False, time: float = None):
-    if not self.api:
-        webcam = cv2.VideoCapture(self.pipeline)
+def captureVideo(pipeline, api=None, fps=24, path: str = '', show_frame: bool = True, vid_lenght: float = None):
+    if not api:
+        webcam = cv2.VideoCapture(pipeline)
     else:
-        webcam = cv2.VideoCapture(self.pipeline, self.api)
+        webcam = cv2.VideoCapture(pipeline, api)
     check_webcam_avalability(webcam)
 
     width, height = scale((int(webcam.get(3)), int(webcam.get(4))))
 
-    if save_dir:
-        vid_name = ''.join([video_name, '.avi'])
-        path = '/'.join([save_dir, vid_name])
-        out = save_video(path, fps=24, (width, height))
+    if path:
+        if not path.endswith('.avi'):
+            path = ''.join(path, '.avi')
+        out = save_video(path, (width, height), fps=24)
+    if vid_lenght:
+        t = time.time()
     while True:
+
         try:
             # capture each frame
             ret, frame = webcam.read()
@@ -63,16 +79,20 @@ def captureVideo(fps=24, save_dir: str = '', video_name: str = 'video', show_fra
             # display frame
             if show_frame:
                 cv2.imshow('Frame', frame)
-            if save_dir:
+            if path:
                 out.write(frame)
             if check_key():
                 break
+            if vid_lenght:
+                if time.time() - t >= vid_lenght:
+                    break
+
         except KeyboardInterrupt:
             print('Interrupted')
             break
     # After the loop release the video and out object
     webcam.release()
-    if save_dir:
+    if path:
         out.release()
     # Destroy all windows
     cv2.destroyAllWindows()

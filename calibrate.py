@@ -3,7 +3,7 @@ import cv2
 import sys
 import glob
 import numpy as np
-from camera import Camera
+import camera
 
 
 class Calibrate:

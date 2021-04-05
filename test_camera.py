@@ -1,7 +1,9 @@
 import unittest
-from camera import Camera
-from calibrate import Calibrate
+import camera
+import calibrate
+import utils
 import numpy as np
+import os
 import cv2
 
 
@@ -9,18 +11,17 @@ class TestCameraCalibration(unittest.TestCase):
 
     # def testVideoCapture(self):
     #     print('\nTesting video capture')
-    #     camera = Camera(pipeline=1)
-    #     fps = 24
-    #     camera.captureVideo(fps=fps, save_dir='webcam', show_frame=True)
+
+    #     dir_path = utils.create_dir('webcam')
+    #     path = os.path.join(dir_path, 'video.avi')
+    #     camera.captureVideo(0, path=path)
 
     # def testPhotoCapture(self):
     #     print('\nTesting capturing photos')
-    #     camera = Camera(pipeline=1)
+    #     dir_path = utils.create_dir('webcam')
     #     num_img = 1
     #     fps = 1
-    #     save_dir = 'webcam'
-
-    #     camera.captureImage(num_img=num_img, fps=fps,
+    #     camera.captureImage(0, num_img=num_img, fps=fps,
     #                         save_dir=save_dir)
 
     # def testCalibration(self):
