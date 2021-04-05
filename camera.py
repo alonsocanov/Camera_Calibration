@@ -98,7 +98,7 @@ def captureVideo(pipeline, api=None, fps=24, path: str = '', show_frame: bool = 
     cv2.destroyAllWindows()
 
 
-def captureImage(pipeline, api=None, num_img: int = 1, fps: int = 1, save_dir='', img_name='img', file_type='.jpg', show_img=False):
+def captureImage(pipeline, api=None, num_img: int = 1, fps: int = 1, save_dir='', img_name='img', file_type='.jpg', show_img=True):
     if not api:
         webcam = cv2.VideoCapture(pipeline)
     else:

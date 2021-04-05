@@ -1,5 +1,6 @@
 import os
 import sys
+import glob
 
 
 def sys_exit(message: str):
@@ -55,3 +56,19 @@ def create_dir(dir_name: str, file: str = None):
         message = ' '.join([description, dir_path])
         print(message)
     return dir_path
+
+
+def files_in_dir(dir_path: str, ext: str = None):
+    check_directory(dir_path)
+    if not dir_path.endswith('/'):
+        dir_path = ''.join([dir_path, '/'])
+    if ext:
+        path = ''.join([dir_path, '*', ext])
+    else:
+        path = dir_path
+    return glob.glob(path)
+
+
+def join_path(*args):
+    array = list(args)
+    return '/'.join(array)
